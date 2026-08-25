@@ -1,0 +1,3621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MathLab</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: #f7f7f5;
+            --surface: #ffffff;
+            --border: #deded9;
+            --text: #242424;
+            --muted: #777773;
+            --accent: #315fce;
+            --accent-dark: #244da9;
+            --coin: #c9971f;
+            --coin-bg: #fff6e0;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family:
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        header {
+            height: 58px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 22px;
+
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .coin-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            padding: 7px 12px;
+
+            background: var(--coin-bg);
+            border: 1px solid #f0dfa8;
+            border-radius: 999px;
+
+            color: var(--coin);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .store-open-button {
+            border: 1px solid var(--border);
+            border-radius: 999px;
+
+            padding: 7px 14px;
+
+            background: var(--surface);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .store-open-button:hover {
+            background: #f0f0ec;
+        }
+
+        main {
+            width: min(950px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 52px 0 90px;
+        }
+
+        .mode {
+            display: none;
+        }
+
+        .mode.active {
+            display: block;
+        }
+
+        .page-heading {
+            margin-bottom: 30px;
+        }
+
+        .page-heading h1 {
+            margin: 0 0 7px;
+
+            font-size: 29px;
+            letter-spacing: -0.7px;
+        }
+
+        .page-heading p {
+            margin: 0;
+
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .math-area {
+            max-width: 720px;
+        }
+
+        .question-card {
+            position: relative;
+
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            padding: 32px;
+        }
+
+        .question-type {
+            margin-bottom: 24px;
+
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .question {
+            margin-bottom: 30px;
+
+            font-size: 27px;
+            line-height: 1.45;
+            font-weight: 600;
+        }
+
+        .answer-area {
+            display: flex;
+            gap: 9px;
+        }
+
+        .answer-area input {
+            flex: 1;
+            min-width: 0;
+
+            padding: 12px 13px;
+
+            border: 1px solid #cfcfca;
+            border-radius: 7px;
+
+            background: white;
+            color: var(--text);
+
+            outline: none;
+        }
+
+        .answer-area input:focus {
+            border-color: var(--accent);
+        }
+
+        .button {
+            border: 0;
+            border-radius: 7px;
+
+            padding: 11px 17px;
+
+            background: var(--accent);
+            color: white;
+        }
+
+        .button:hover {
+            background: var(--accent-dark);
+        }
+
+        .feedback {
+            min-height: 22px;
+
+            margin-top: 17px;
+
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            gap: 25px;
+
+            margin-top: 18px;
+
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .streak-flag {
+            color: #c9971f;
+        }
+
+        .coin-toast {
+            position: absolute;
+            top: 26px;
+            right: 32px;
+
+            padding: 6px 12px;
+
+            background: var(--coin-bg);
+            border: 1px solid #f0dfa8;
+            border-radius: 999px;
+
+            color: var(--coin);
+            font-weight: 700;
+            font-size: 13px;
+
+            opacity: 0;
+            transform: translateY(-6px);
+
+            pointer-events: none;
+
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .coin-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .game-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 25px;
+        }
+
+        .game-toolbar h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .game-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fill, minmax(220px, 1fr));
+
+            gap: 14px;
+        }
+
+        .game-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+
+            padding: 18px;
+        }
+
+        .game-card h3 {
+            margin: 0 0 7px;
+            font-size: 16px;
+        }
+
+        .game-url {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .game-actions {
+            display: flex;
+            gap: 7px;
+
+            margin-top: 17px;
+        }
+
+        .small-button {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+
+            padding: 7px 10px;
+
+            background: #fafaf8;
+            color: var(--text);
+
+            font-size: 13px;
+        }
+
+        .small-button:hover {
+            background: #f0f0ec;
+        }
+
+        .favorite.active {
+            background: #fff8dc;
+            color: #9b7200;
+        }
+
+        .empty-state {
+            border: 1px dashed #cfcfc9;
+            border-radius: 9px;
+
+            padding: 45px 25px;
+
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-state h3 {
+            margin: 0 0 7px;
+            color: var(--text);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background: rgba(0, 0, 0, 0.35);
+
+            z-index: 20;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            width: min(470px, 100%);
+
+            padding: 25px;
+
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .modal h2 {
+            margin: 0 0 20px;
+            font-size: 20px;
+        }
+
+        .modal label {
+            display: block;
+
+            margin-bottom: 6px;
+
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .modal input {
+            width: 100%;
+
+            margin-bottom: 17px;
+            padding: 11px;
+
+            border: 1px solid #cfcfca;
+            border-radius: 7px;
+
+            outline: none;
+        }
+
+        .modal input:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .cancel-button {
+            border: 1px solid var(--border);
+            border-radius: 7px;
+
+            padding: 10px 15px;
+
+            background: white;
+        }
+
+        .store-modal {
+            width: min(680px, 100%);
+            max-height: min(680px, 85vh);
+
+            padding: 25px;
+
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .store-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 6px;
+        }
+
+        .store-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .store-close {
+            border: 0;
+            background: transparent;
+
+            font-size: 20px;
+            line-height: 1;
+            color: var(--muted);
+
+            padding: 4px 8px;
+        }
+
+        .store-close:hover {
+            color: var(--text);
+        }
+
+        .store-subheading {
+            margin: 0 0 18px;
+
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .store-grid {
+            overflow-y: auto;
+
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+
+            padding-right: 4px;
+        }
+
+        .store-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 14px 10px;
+
+            border: 1px solid var(--border);
+            border-radius: 9px;
+
+            background: #fafaf8;
+
+            text-align: center;
+        }
+
+        .store-item.owned {
+            background: #f1f8ee;
+            border-color: #cde8c2;
+        }
+
+        .store-item-emoji {
+            font-size: 30px;
+        }
+
+        .store-item-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .store-item-price {
+            font-size: 12px;
+            color: var(--coin);
+            font-weight: 700;
+        }
+
+        .store-item-owned-label {
+            font-size: 12px;
+            color: #4c8a37;
+            font-weight: 700;
+        }
+
+        .store-item-buy {
+            width: 100%;
+
+            border: 0;
+            border-radius: 6px;
+
+            padding: 6px 8px;
+
+            background: var(--accent);
+            color: white;
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .store-item-buy:hover {
+            background: var(--accent-dark);
+        }
+
+        .store-item-buy:disabled {
+            background: #d9d9d3;
+            color: #93938d;
+            cursor: not-allowed;
+        }
+
+        .viewer {
+            position: fixed;
+            inset: 0;
+
+            display: none;
+            flex-direction: column;
+
+            background: #111;
+
+            z-index: 50;
+        }
+
+        .viewer.open {
+            display: flex;
+        }
+
+        .viewer-header {
+            height: 50px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 13px;
+
+            background: #1d1d1d;
+            color: white;
+
+            flex-shrink: 0;
+        }
+
+        .viewer-actions {
+            display: flex;
+            gap: 7px;
+        }
+
+        .viewer-button {
+            border: 0;
+            border-radius: 6px;
+
+            padding: 7px 12px;
+
+            background: #333;
+            color: white;
+        }
+
+        .viewer-button:hover {
+            background: #444;
+        }
+
+        .viewer-button.math {
+            background: var(--accent);
+        }
+
+        .viewer-button.math:hover {
+            background: var(--accent-dark);
+        }
+
+        .viewer iframe {
+            flex: 1;
+
+            width: 100%;
+
+            border: 0;
+
+            background: white;
+        }
+
+
+        .landing-wrap {
+            min-height: calc(100vh - 58px);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 24px;
+        }
+
+        .landing-card {
+            width: min(420px, 100%);
+
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            padding: 34px;
+        }
+
+        .landing-card h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-card p {
+            margin: 0 0 24px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .landing-tabs {
+            display: flex;
+            gap: 6px;
+
+            margin-bottom: 20px;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            padding: 4px;
+        }
+
+        .landing-tab {
+            flex: 1;
+
+            border: 0;
+            border-radius: 6px;
+
+            padding: 9px;
+
+            background: transparent;
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .landing-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .landing-form {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .landing-form.active {
+            display: flex;
+        }
+
+        .landing-form label {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .landing-form input {
+            padding: 11px;
+
+            border: 1px solid #cfcfca;
+            border-radius: 7px;
+
+            outline: none;
+        }
+
+        .landing-form input:focus {
+            border-color: var(--accent);
+        }
+
+        .landing-error {
+            min-height: 18px;
+
+            color: #c0392b;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .landing-submit {
+            margin-top: 4px;
+        }
+
+        .class-hud {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            padding: 7px 12px;
+
+            border: 1px solid var(--border);
+            border-radius: 999px;
+
+            background: var(--surface);
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .class-hud strong {
+            color: var(--text);
+        }
+
+        .leave-class-button {
+            border: 0;
+            background: transparent;
+
+            color: var(--muted);
+            font-size: 12px;
+            text-decoration: underline;
+
+            padding: 0;
+        }
+
+        .leave-class-button:hover {
+            color: var(--text);
+        }
+
+        .class-paused-banner {
+            margin-bottom: 20px;
+            padding: 13px 16px;
+
+            background: #fff6e0;
+            border: 1px solid #f0dfa8;
+            border-radius: 8px;
+
+            color: #8a6a10;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .teacher-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 24px;
+        }
+
+        .teacher-toolbar .class-code-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .code-badge {
+            padding: 8px 14px;
+
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .teacher-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 760px) {
+            .teacher-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .teacher-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            padding: 22px;
+        }
+
+        .teacher-panel h2 {
+            margin: 0 0 4px;
+            font-size: 16px;
+        }
+
+        .teacher-panel .panel-sub {
+            margin: 0 0 16px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .pause-button {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+
+            padding: 10px;
+
+            background: #fafaf8;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .pause-button:hover {
+            background: #f0f0ec;
+        }
+
+        .pause-button.is-active {
+            background: #fdeceb;
+            border-color: #f3c9c5;
+            color: #a13a2f;
+        }
+
+        .type-checkbox-list {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .type-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            font-size: 14px;
+        }
+
+        .roster-table {
+            width: 100%;
+            border-collapse: collapse;
+
+            font-size: 13px;
+        }
+
+        .roster-table th {
+            text-align: left;
+            padding: 8px 6px;
+
+            color: var(--muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .roster-table td {
+            padding: 8px 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .roster-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .roster-action-button {
+            border: 1px solid var(--border);
+            border-radius: 5px;
+
+            padding: 4px 8px;
+
+            background: #fafaf8;
+            font-size: 11px;
+        }
+
+        .roster-action-button:hover {
+            background: #f0f0ec;
+        }
+
+        .roster-action-button.danger {
+            color: #a13a2f;
+            border-color: #f3c9c5;
+        }
+
+        .roster-empty {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+
+        @media (max-width: 600px) {
+
+            main {
+                width: calc(100% - 24px);
+                padding-top: 32px;
+            }
+
+            .question-card {
+                padding: 23px;
+            }
+
+            .question {
+                font-size: 23px;
+            }
+
+            .answer-area {
+                flex-direction: column;
+            }
+
+            .answer-area .button {
+                width: 100%;
+            }
+
+            .coin-toast {
+                right: 20px;
+                top: 18px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        Math<span>Lab</span>
+    </div>
+
+    <div class="header-right" id="header-right" style="gap: 8px;">
+
+        <button id="nav-teacher-button" class="store-open-button" style="display: none;">
+            Dashboard
+        </button>
+
+
+        <div class="coin-pill">
+            🪙 <span id="coin-count">0</span>
+        </div>
+
+        <button
+            id="open-store-button"
+            class="store-open-button"
+        >
+            Store
+        </button>
+
+        <div class="class-hud" id="class-hud" style="display: none;">
+            <span>
+                Class: <strong id="class-hud-name"></strong>
+            </span>
+
+            <button id="leave-class-button" class="leave-class-button">
+                Leave
+            </button>
+        </div>
+
+    </div>
+
+</header>
+
+
+<section id="landing-mode" class="mode">
+
+    <div class="landing-wrap">
+
+        <div class="landing-card">
+
+            <h1>Welcome to MathLab</h1>
+            <p>Enter your name to join a class, or start one as a teacher.</p>
+
+            <div class="landing-tabs">
+                <button id="landing-tab-join" class="landing-tab active">
+                    Join a class
+                </button>
+                <button id="landing-tab-create" class="landing-tab">
+                    Teach a class
+                </button>
+            </div>
+
+            <div id="landing-form-join" class="landing-form active">
+
+                <label for="join-name">Your name</label>
+                <input id="join-name" type="text" placeholder="e.g. Alex" autocomplete="off">
+
+                <label for="join-code">Class code</label>
+                <input id="join-code" type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code" autocomplete="off">
+
+                <div id="join-error" class="landing-error"></div>
+
+                <button id="join-submit" class="button landing-submit">
+                    Join class
+                </button>
+
+            </div>
+
+            <div id="landing-form-create" class="landing-form">
+
+                <label for="create-teacher-name">Your name</label>
+                <input id="create-teacher-name" type="text" placeholder="e.g. Ms. Rivera" autocomplete="off">
+
+                <label for="create-class-name">Class name</label>
+                <input id="create-class-name" type="text" placeholder="e.g. Period 3 Maths" autocomplete="off">
+
+                <div id="create-error" class="landing-error"></div>
+
+                <button id="create-submit" class="button landing-submit">
+                    Create class
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<main>
+
+    <section
+        id="math-mode"
+        class="mode active"
+    >
+
+        <div class="page-heading">
+
+            <h1>Math Practice</h1>
+
+            <p>
+                Work through a mixture of Year 7–9 maths.
+            </p>
+
+        </div>
+
+        <div id="class-paused-banner" class="class-paused-banner" style="display: none;">
+            Your class is paused by the teacher. New questions are on hold.
+        </div>
+
+        <div class="math-area">
+
+            <div class="question-card">
+
+                <div id="coin-toast" class="coin-toast"></div>
+
+                <div
+                    id="question-type"
+                    class="question-type"
+                >
+                    Arithmetic
+                </div>
+
+
+                <div
+                    id="math-question"
+                    class="question"
+                >
+                    Loading question...
+                </div>
+
+
+                <div class="answer-area">
+
+                    <input
+                        id="math-answer"
+                        type="text"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        placeholder="Enter your answer"
+                    >
+
+                    <button
+                        id="check-answer"
+                        class="button"
+                    >
+                        Check
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="math-feedback"
+                    class="feedback"
+                ></div>
+
+
+                <div class="stats">
+
+                    <span>
+                        Correct:
+                        <strong id="correct-count">
+                            0
+                        </strong>
+                    </span>
+
+                    <span>
+                        Attempted:
+                        <strong id="attempt-count">
+                            0
+                        </strong>
+                    </span>
+
+                    <span>
+                        Streak:
+                        <strong id="streak-count">0</strong>
+                        <span id="streak-flag" class="streak-flag"></span>
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <section
+        id="games-mode"
+        class="mode"
+    >
+
+        <div class="page-heading">
+
+            <h1>Game Lab</h1>
+
+            <p>
+                This is filled with teacher-approved games. Do not use when not aloud.
+            </p>
+
+        </div>
+
+
+        <div class="game-toolbar">
+
+            <h2>Your Library</h2>
+
+            <button
+                id="add-game-button"
+                class="button"
+            >
+                Add Game
+            </button>
+
+        </div>
+
+
+        <div
+            id="game-grid"
+            class="game-grid"
+        ></div>
+
+    </section>
+
+
+    <section
+        id="teacher-mode"
+        class="mode"
+    >
+
+        <div class="teacher-toolbar">
+
+            <div>
+                <div class="page-heading" style="margin-bottom: 8px;">
+                    <h1 id="teacher-class-name">Your class</h1>
+                    <p>Manage question types and your roster.</p>
+                </div>
+            </div>
+
+            <div class="class-code-display">
+                <span style="color: var(--muted); font-size: 13px;">Class code</span>
+                <div class="code-badge" id="teacher-code-badge">------</div>
+            </div>
+
+        </div>
+
+        <div class="teacher-grid">
+
+            <div class="teacher-panel">
+
+                <h2>Class status</h2>
+                <p class="panel-sub">Pause to stop students from getting new questions.</p>
+
+                <button id="pause-toggle-button" class="pause-button">
+                    Pause class
+                </button>
+
+            </div>
+
+            <div class="teacher-panel">
+
+                <h2>Question types</h2>
+                <p class="panel-sub">Choose which question types students will see.</p>
+
+                <div id="type-checkbox-list" class="type-checkbox-list"></div>
+
+            </div>
+
+            <div class="teacher-panel" style="grid-column: 1 / -1;">
+
+                <h2>Roster</h2>
+                <p class="panel-sub">Students currently in your class.</p>
+
+                <div id="roster-container"></div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<div
+    id="modal-overlay"
+    class="modal-overlay"
+>
+
+    <div class="modal">
+
+        <h2>Add a game</h2>
+
+
+        <label for="game-name">
+            Name
+        </label>
+
+        <input
+            id="game-name"
+            type="text"
+            placeholder="Game name"
+        >
+
+
+        <label for="game-url">
+            URL
+        </label>
+
+        <input
+            id="game-url"
+            type="url"
+            placeholder="https://example.com/game"
+        >
+
+
+        <div class="modal-actions">
+
+            <button
+                id="cancel-game"
+                class="cancel-button"
+            >
+                Cancel
+            </button>
+
+            <button
+                id="save-game"
+                class="button"
+            >
+                Add Game
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    id="store-overlay"
+    class="modal-overlay"
+>
+
+    <div class="store-modal">
+
+        <div class="store-header">
+
+            <h2>Store</h2>
+
+            <button id="close-store" class="store-close">
+                ✕
+            </button>
+
+        </div>
+
+        <p class="store-subheading">
+            Spend coins on cosmetics to brag about in class. You can own one of each item.
+        </p>
+
+        <div id="store-grid" class="store-grid"></div>
+
+    </div>
+
+</div>
+
+<div
+    id="viewer"
+    class="viewer"
+>
+
+    <div class="viewer-header">
+
+    <strong id="viewer-title">
+        Game
+    </strong>
+
+    <div class="viewer-actions">
+
+        <button
+            id="close-viewer"
+            class="viewer-button"
+        >
+            Close
+        </button>
+
+    </div>
+
+</div>
+
+
+    <iframe
+        id="game-frame"
+        title="Game"
+        tabindex="0"
+        sandbox="
+            allow-scripts
+            allow-same-origin
+            allow-forms
+            allow-pointer-lock
+        "
+    ></iframe>
+
+</div>
+
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL = "https://llmsljlcjugdpkhfklph.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsbXNsamxjanVnZHBraGZrbHBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MjA4ODgsImV4cCI6MjA5ODE5Njg4OH0.weH2fYFj4qxEeyIUdQtn1hz7H2iyHeab6OPdJONXzmo";
+
+function getDeviceId() {
+
+    let id = localStorage.getItem("mathlab-device-id");
+
+    if (!id) {
+
+        id = crypto.randomUUID();
+
+        localStorage.setItem(
+            "mathlab-device-id",
+            id
+        );
+
+    }
+
+    return id;
+
+}
+
+const deviceId = getDeviceId();
+
+const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    {
+        global: {
+            headers: {
+                "x-device-id": deviceId
+            }
+        }
+    }
+);
+
+const ALL_QUESTION_TYPES = [
+    "integer",
+    "decimal",
+    "percentage",
+    "fraction",
+    "ratio",
+    "algebra",
+    "order",
+    "power",
+    "geometry",
+    "rounding",
+    "wordproblem"
+];
+
+let classState = {
+    inClass: false,
+    role: null,
+    classId: null,
+    classCode: null,
+    className: null,
+    active: true,
+    allowedTypes: ALL_QUESTION_TYPES.slice(),
+    memberId: null
+};
+
+function generateClassCode() {
+
+    return String(
+        Math.floor(100000 + Math.random() * 900000)
+    );
+
+}
+
+async function createClass(teacherName, className) {
+
+    let code;
+    let attempts = 0;
+
+    while (attempts < 8) {
+
+        code = generateClassCode();
+
+        const { data: existing } = await supabase
+            .from("classes")
+            .select("id")
+            .eq("code", code)
+            .maybeSingle();
+
+        if (!existing) {
+            break;
+        }
+
+        attempts++;
+
+    }
+
+    const { data: newClass, error: classError } = await supabase
+        .from("classes")
+        .insert({
+            code,
+            name: className,
+            teacher_device_id: deviceId
+        })
+        .select()
+        .single();
+
+    if (classError) {
+        return { error: classError.message };
+    }
+
+    const { data: member, error: memberError } = await supabase
+        .from("members")
+        .insert({
+            class_id: newClass.id,
+            device_id: deviceId,
+            name: teacherName,
+            role: "teacher"
+        })
+        .select()
+        .single();
+
+    if (memberError) {
+        return { error: memberError.message };
+    }
+
+    classState = {
+        inClass: true,
+        role: "teacher",
+        classId: newClass.id,
+        classCode: newClass.code,
+        className: newClass.name,
+        active: newClass.active,
+        allowedTypes: newClass.allowed_question_types,
+        memberId: member.id
+    };
+
+    return { classState };
+
+}
+
+async function joinClass(studentName, code) {
+
+    const { data: foundClass, error: findError } = await supabase
+        .from("classes")
+        .select("*")
+        .eq("code", code)
+        .maybeSingle();
+
+    if (findError) {
+        return { error: findError.message };
+    }
+
+    if (!foundClass) {
+        return { error: "No class found with that code." };
+    }
+
+    const { data: member, error: memberError } = await supabase
+        .from("members")
+        .insert({
+            class_id: foundClass.id,
+            device_id: deviceId,
+            name: studentName,
+            role: "student"
+        })
+        .select()
+        .single();
+
+    if (memberError) {
+
+        if (memberError.code === "23505") {
+            return { error: "This device is already in a class." };
+        }
+
+        return { error: memberError.message };
+
+    }
+
+    classState = {
+        inClass: true,
+        role: "student",
+        classId: foundClass.id,
+        classCode: foundClass.code,
+        className: foundClass.name,
+        active: foundClass.active,
+        allowedTypes: foundClass.allowed_question_types,
+        memberId: member.id
+    };
+
+    return { classState };
+
+}
+
+async function loadExistingMembership() {
+
+    const { data: member, error } = await supabase
+        .from("members")
+        .select("*, classes(*)")
+        .eq("device_id", deviceId)
+        .eq("kicked", false)
+        .maybeSingle();
+
+    if (error || !member || !member.classes) {
+        return null;
+    }
+
+    classState = {
+        inClass: true,
+        role: member.role,
+        classId: member.classes.id,
+        classCode: member.classes.code,
+        className: member.classes.name,
+        active: member.classes.active,
+        allowedTypes: member.classes.allowed_question_types,
+        memberId: member.id
+    };
+
+    return classState;
+
+}
+
+async function leaveClass() {
+
+    if (!classState.memberId) {
+        return;
+    }
+
+    await supabase
+        .from("members")
+        .update({ kicked: true })
+        .eq("id", classState.memberId);
+
+    classState = {
+        inClass: false,
+        role: null,
+        classId: null,
+        classCode: null,
+        className: null,
+        active: true,
+        allowedTypes: ALL_QUESTION_TYPES.slice(),
+        memberId: null
+    };
+
+}
+
+async function syncMemberProgress(partial) {
+
+    if (!classState.inClass || classState.role !== "student") {
+        return;
+    }
+
+    await supabase
+        .from("members")
+        .update(partial)
+        .eq("id", classState.memberId);
+
+}
+
+async function fetchRoster() {
+
+    if (!classState.classId) {
+        return [];
+    }
+
+    const { data, error } = await supabase
+        .from("members")
+        .select("*")
+        .eq("class_id", classState.classId)
+        .eq("kicked", false)
+        .order("joined_at", { ascending: true });
+
+    if (error) {
+        return [];
+    }
+
+    return data;
+
+}
+
+async function updateClassSettings(partial) {
+
+    if (!classState.classId) {
+        return;
+    }
+
+    const { error } = await supabase
+        .from("classes")
+        .update(partial)
+        .eq("id", classState.classId);
+
+    if (!error) {
+        Object.assign(classState, partial.active !== undefined ? { active: partial.active } : {});
+        Object.assign(classState, partial.allowed_question_types !== undefined ? { allowedTypes: partial.allowed_question_types } : {});
+    }
+
+    return { error };
+
+}
+
+async function resetStudentCoins(memberId) {
+
+    await supabase
+        .from("members")
+        .update({ coins: 0, owned_items: [] })
+        .eq("id", memberId);
+
+}
+
+async function kickStudent(memberId) {
+
+    await supabase
+        .from("members")
+        .update({ kicked: true })
+        .eq("id", memberId);
+
+}
+
+window.addEventListener("message", event => {
+
+    if (!viewer.classList.contains("open")) {
+        return;
+    }
+
+    if (event.source !== gameFrame.contentWindow) {
+        return;
+    }
+
+
+    const data = event.data;
+
+    if (
+        !data ||
+        data.source !== "mathlab-game"
+    ) {
+        return;
+    }
+
+    if (
+        data.type === "keyboard" &&
+        typeof data.key === "string"
+    ) {
+
+        const key =
+            data.key.toLowerCase();
+
+
+        if (key === "m") {
+
+            closeViewer();
+
+        }
+
+    }
+
+});
+const defaultGames = [
+
+    {
+        id: "overmind",
+
+        name: "Overmind",
+
+        url: "https://v0idplayy-777.github.io/Overmind/",
+
+        default: true
+
+    }
+
+];
+
+let games = JSON.parse(
+    localStorage.getItem("mathlab-games") || "[]"
+);
+
+const storeItems = [
+    { id: "pencil", name: "Pencil", emoji: "✏️", price: 15 },
+    { id: "eraser", name: "Eraser", emoji: "🧼", price: 22 },
+    { id: "ruler", name: "Ruler", emoji: "📏", price: 30 },
+    { id: "notebook", name: "Notebook", emoji: "📓", price: 40 },
+    { id: "calculator", name: "Calculator", emoji: "🧮", price: 52 },
+    { id: "backpack", name: "Backpack", emoji: "🎒", price: 66 },
+    { id: "apple", name: "Apple", emoji: "🍎", price: 82 },
+    { id: "star_sticker", name: "Star Sticker", emoji: "⭐", price: 100 },
+    { id: "trophy", name: "Trophy", emoji: "🏆", price: 120 },
+    { id: "medal", name: "Medal", emoji: "🥇", price: 142 },
+    { id: "graduation_cap", name: "Graduation Cap", emoji: "🎓", price: 166 },
+    { id: "lightbulb", name: "Lightbulb", emoji: "💡", price: 192 },
+    { id: "compass", name: "Compass", emoji: "🧭", price: 220 },
+    { id: "globe", name: "Globe", emoji: "🌍", price: 250 },
+    { id: "rocket", name: "Rocket", emoji: "🚀", price: 282 },
+    { id: "clock", name: "Clock", emoji: "🕰️", price: 316 },
+    { id: "chess_piece", name: "Chess Piece", emoji: "♟️", price: 352 },
+    { id: "gem", name: "Gem", emoji: "💎", price: 390 },
+    { id: "crown", name: "Crown", emoji: "👑", price: 430 },
+    { id: "shield", name: "Shield", emoji: "🛡️", price: 472 },
+    { id: "wizard_hat", name: "Wizard Hat", emoji: "🧙", price: 516 },
+    { id: "dragon", name: "Dragon", emoji: "🐉", price: 562 },
+    { id: "unicorn", name: "Unicorn", emoji: "🦄", price: 610 },
+    { id: "castle", name: "Castle", emoji: "🏰", price: 660 },
+    { id: "volcano", name: "Volcano", emoji: "🌋", price: 712 },
+    { id: "island", name: "Island", emoji: "🏝️", price: 766 },
+    { id: "spaceship", name: "Spaceship", emoji: "🛸", price: 822 },
+    { id: "meteor", name: "Meteor", emoji: "☄️", price: 880 },
+    { id: "galaxy", name: "Galaxy", emoji: "🌌", price: 940 },
+    { id: "statue_of_liberty", name: "Statue of Liberty", emoji: "🗽", price: 1005 },
+    { id: "pyramid", name: "Pyramid", emoji: "🔺", price: 1075 },
+    { id: "mount_fuji", name: "Mount Fuji", emoji: "🗻", price: 1150 },
+    { id: "eiffel_tower", name: "Eiffel Tower", emoji: "🗼", price: 1230 },
+    { id: "moon", name: "Moon", emoji: "🌕", price: 1320 },
+    { id: "sun", name: "Sun", emoji: "☀️", price: 1420 },
+    { id: "black_hole", name: "Black Hole", emoji: "🕳️", price: 1550 },
+    { id: "hamburbur", name: "Hamburbur", emoji: "🍔", price: 2500 }
+];
+
+let coins = parseInt(
+    localStorage.getItem("mathlab-coins") || "0",
+    10
+);
+
+let ownedItems = JSON.parse(
+    localStorage.getItem("mathlab-owned-items") || "[]"
+);
+
+let streak = parseInt(
+    localStorage.getItem("mathlab-streak") || "0",
+    10
+);
+
+    const mathMode =
+        document.getElementById("math-mode");
+
+    const gamesMode =
+        document.getElementById("games-mode");
+
+    const gameGrid =
+        document.getElementById("game-grid");
+
+    const modalOverlay =
+        document.getElementById("modal-overlay");
+
+    const storeOverlay =
+        document.getElementById("store-overlay");
+
+    const storeGrid =
+        document.getElementById("store-grid");
+
+    const coinCountEl =
+        document.getElementById("coin-count");
+
+    const coinToast =
+        document.getElementById("coin-toast");
+
+    const streakCountEl =
+        document.getElementById("streak-count");
+
+    const streakFlagEl =
+        document.getElementById("streak-flag");
+
+    const viewer =
+        document.getElementById("viewer");
+
+    const gameFrame =
+        document.getElementById("game-frame");
+
+    const viewerTitle =
+        document.getElementById("viewer-title");
+
+    const mathAnswer =
+        document.getElementById("math-answer");
+
+
+const allModes = [
+    "landing",
+    "math",
+    "games",
+    "teacher"
+];
+
+function switchMode(mode) {
+
+    allModes.forEach(name => {
+
+        const el = document.getElementById(name + "-mode");
+
+        if (el) {
+            el.classList.remove("active");
+        }
+
+    });
+
+    const target = document.getElementById(mode + "-mode");
+
+    if (target) {
+        target.classList.add("active");
+    }
+
+    if (mode === "math") {
+
+        mathAnswer.disabled = false;
+        mathAnswer.value = "";
+
+        setTimeout(() => {
+            mathAnswer.focus();
+        }, 0);
+
+    } else {
+
+        mathAnswer.blur();
+        mathAnswer.disabled = true;
+
+    }
+
+    if (mode === "teacher") {
+        renderTeacherDashboard();
+    }
+
+}
+
+    let currentQuestion = null;
+
+    let correctCount = 0;
+    let attemptCount = 0;
+
+    const recentTypes = [];
+
+
+    function randomInt(min, max) {
+
+        return Math.floor(
+            Math.random() *
+            (max - min + 1)
+        ) + min;
+
+    }
+
+
+    function randomDecimal(
+        min,
+        max,
+        decimals = 1
+    ) {
+
+        const multiplier =
+            10 ** decimals;
+
+        return Math.round(
+            (
+                Math.random() *
+                (max - min) +
+                min
+            ) * multiplier
+        ) / multiplier;
+
+    }
+
+
+    function pickQuestionType(types) {
+
+        const available =
+            types.filter(
+                type => !recentTypes.includes(type)
+            );
+
+        const pool =
+            available.length > 0
+                ? available
+                : types;
+
+        const type =
+            pool[
+                randomInt(0, pool.length - 1)
+            ];
+
+        recentTypes.push(type);
+
+        if (recentTypes.length > 3) {
+            recentTypes.shift();
+        }
+
+        return type;
+
+    }
+
+
+    function generateQuestion() {
+
+        if (classState.inClass && classState.role === "student" && !classState.active) {
+
+            document.getElementById("math-question").textContent =
+                "Waiting for your teacher to resume the class.";
+
+            document.getElementById("question-type").textContent = "Paused";
+
+            currentQuestion = null;
+
+            return;
+
+        }
+
+        const types =
+            classState.inClass && classState.allowedTypes.length > 0
+                ? classState.allowedTypes
+                : ALL_QUESTION_TYPES;
+
+
+        const type =
+            pickQuestionType(types);
+
+
+        let question;
+        let answer;
+
+        if (type === "integer") {
+
+            const a =
+                randomInt(-40, 40);
+
+            const b =
+                randomInt(-40, 40);
+
+            const operation =
+                Math.random() < 0.5
+                    ? "+"
+                    : "-";
+
+
+            question =
+                `${a} ${operation} ${b} = ?`;
+
+
+            answer =
+                operation === "+"
+                    ? a + b
+                    : a - b;
+
+        }
+
+        else if (type === "decimal") {
+
+            const a =
+                randomDecimal(1, 25);
+
+            const b =
+                randomDecimal(1, 12);
+
+            const operation =
+                Math.random() < 0.5
+                    ? "+"
+                    : "-";
+
+
+            question =
+                `${a} ${operation} ${b} = ?`;
+
+
+            answer =
+                operation === "+"
+                    ? a + b
+                    : a - b;
+
+        }
+
+        else if (type === "percentage") {
+
+            const percentages = [
+                5,
+                10,
+                15,
+                20,
+                25,
+                30,
+                40,
+                50,
+                60,
+                75
+            ];
+
+
+            const percentage =
+                percentages[
+                    randomInt(
+                        0,
+                        percentages.length - 1
+                    )
+                ];
+
+
+            const number =
+                randomInt(2, 30) * 10;
+
+
+            question =
+                `What is ${percentage}% of ${number}?`;
+
+
+            answer =
+                number * percentage / 100;
+
+        }
+
+        else if (type === "fraction") {
+
+            const denominator =
+                randomInt(3, 12);
+
+            const numerator =
+                randomInt(
+                    1,
+                    denominator - 1
+                );
+
+            const multiplier =
+                randomInt(2, 8);
+
+
+            question =
+                `What is ${numerator}/${denominator} × ${multiplier}?`;
+
+
+            answer =
+                numerator /
+                denominator *
+                multiplier;
+
+        }
+
+        else if (type === "ratio") {
+
+            const ratioA =
+                randomInt(2, 6);
+
+            const ratioB =
+                randomInt(2, 6);
+
+            const multiplier =
+                randomInt(2, 9);
+
+            const firstAmount =
+                ratioA * multiplier;
+
+            const secondAmount =
+                ratioB * multiplier;
+
+
+            question =
+                `The ratio of red to blue counters is ${ratioA}:${ratioB}. If there are ${firstAmount} red counters, how many blue counters are there?`;
+
+
+            answer =
+                secondAmount;
+
+        }
+
+        else if (type === "algebra") {
+
+            const x =
+                randomInt(2, 18);
+
+            const multiplier =
+                randomInt(2, 8);
+
+            const constant =
+                randomInt(1, 18);
+
+            const result =
+                multiplier * x +
+                constant;
+
+
+            question =
+                `Solve for x: ${multiplier}x + ${constant} = ${result}`;
+
+
+            answer = x;
+
+        }
+
+        else if (type === "order") {
+
+            const a =
+                randomInt(2, 9);
+
+            const b =
+                randomInt(2, 9);
+
+            const c =
+                randomInt(2, 6);
+
+
+            question =
+                `${a} + ${b} × ${c} = ?`;
+
+
+            answer =
+                a + b * c;
+
+        }
+
+        else if (type === "power") {
+
+            const base =
+                randomInt(2, 9);
+
+            const exponent =
+                randomInt(2, 3);
+
+
+            question =
+                `${base}${exponent === 2 ? "²" : "³"} = ?`;
+
+
+            answer =
+                base ** exponent;
+
+        }
+
+        else if (type === "geometry") {
+
+            const length =
+                randomInt(3, 16);
+
+            const width =
+                randomInt(3, 13);
+
+
+            question =
+                `A rectangle is ${length} cm long and ${width} cm wide. What is its area in cm²?`;
+
+
+            answer =
+                length * width;
+
+        }
+
+        else if (type === "rounding") {
+
+            const whole =
+                randomInt(10, 900);
+
+            const decimalPart =
+                randomInt(1, 9);
+
+            const value =
+                whole + decimalPart / 10;
+
+            const places = [
+                "nearest whole number",
+                "nearest 10"
+            ];
+
+            const place =
+                places[
+                    randomInt(0, places.length - 1)
+                ];
+
+            if (place === "nearest whole number") {
+
+                question =
+                    `Round ${value} to the ${place}.`;
+
+                answer =
+                    Math.round(value);
+
+            } else {
+
+                question =
+                    `Round ${whole} to the ${place}.`;
+
+                answer =
+                    Math.round(whole / 10) * 10;
+
+            }
+
+        }
+
+        else {
+
+            const price =
+                randomInt(2, 20);
+
+            const quantity =
+                randomInt(2, 9);
+
+            const discount =
+                randomInt(1, price * quantity - 1);
+
+
+            question =
+                `Items cost $${price} each. You buy ${quantity} of them, then use a $${discount} discount. What's the total in dollars?`;
+
+
+            answer =
+                price * quantity - discount;
+
+        }
+
+
+        currentQuestion = {
+            type,
+            question,
+            answer
+        };
+
+
+        document.getElementById(
+            "question-type"
+        ).textContent =
+            formatQuestionType(type);
+
+
+        document.getElementById(
+            "math-question"
+        ).textContent =
+            question;
+
+
+        mathAnswer.value = "";
+
+
+        document.getElementById(
+            "math-feedback"
+        ).textContent = "";
+
+    }
+
+
+    function formatQuestionType(type) {
+
+        const names = {
+
+            integer: "Integers",
+
+            decimal: "Decimals",
+
+            percentage: "Percentages",
+
+            fraction: "Fractions",
+
+            ratio: "Ratios",
+
+            algebra: "Algebra",
+
+            order: "Order of operations",
+
+            power: "Powers",
+
+            geometry: "Geometry",
+
+            rounding: "Rounding",
+
+            wordproblem: "Word problem"
+
+        };
+
+
+        return names[type];
+
+    }
+
+    function coinsForStreak(currentStreak) {
+
+        const bonus =
+            Math.min(
+                Math.floor(currentStreak / 3),
+                7
+            );
+
+        return 3 + bonus;
+
+    }
+
+
+    function showCoinToast(amount) {
+
+        coinToast.textContent =
+            `+${amount} 🪙`;
+
+        coinToast.classList.add("show");
+
+        clearTimeout(showCoinToast._timer);
+
+        showCoinToast._timer =
+            setTimeout(() => {
+                coinToast.classList.remove("show");
+            }, 900);
+
+    }
+
+
+    function addCoins(amount) {
+
+        coins += amount;
+
+        localStorage.setItem(
+            "mathlab-coins",
+            String(coins)
+        );
+
+        coinCountEl.textContent =
+            coins;
+
+        showCoinToast(amount);
+
+    }
+
+
+    function updateStreakDisplay() {
+
+        streakCountEl.textContent =
+            streak;
+
+        streakFlagEl.textContent =
+            streak >= 3 ? "🔥" : "";
+
+        localStorage.setItem(
+            "mathlab-streak",
+            String(streak)
+        );
+
+    }
+
+
+    function checkAnswer() {
+
+        if (!currentQuestion) {
+            return;
+        }
+
+        const input =
+            mathAnswer.value.trim();
+
+
+        if (!input) {
+            return;
+        }
+
+
+        const userAnswer =
+            Number(input);
+
+
+        if (!Number.isFinite(userAnswer)) {
+
+            document.getElementById(
+                "math-feedback"
+            ).textContent =
+                "Enter a number.";
+
+            return;
+
+        }
+
+
+        attemptCount++;
+
+
+        const isCorrect =
+            Math.abs(
+                userAnswer -
+                currentQuestion.answer
+            ) < 0.001;
+
+
+        const feedback =
+            document.getElementById(
+                "math-feedback"
+            );
+
+
+        if (isCorrect) {
+
+            correctCount++;
+
+            streak++;
+
+            updateStreakDisplay();
+
+            addCoins(
+                coinsForStreak(streak)
+            );
+
+            feedback.textContent =
+                "Correct.";
+
+            updateStats();
+
+            syncMemberProgress({
+                coins,
+                streak,
+                correct_count: correctCount,
+                attempt_count: attemptCount
+            });
+
+
+            setTimeout(
+                generateQuestion,
+                650
+            );
+
+        } else {
+
+            streak = 0;
+
+            updateStreakDisplay();
+
+            feedback.textContent =
+                "Not quite. Try again.";
+
+            updateStats();
+
+            syncMemberProgress({
+                streak,
+                attempt_count: attemptCount
+            });
+
+        }
+
+    }
+
+
+    function updateStats() {
+
+        document.getElementById(
+            "correct-count"
+        ).textContent =
+            correctCount;
+
+
+        document.getElementById(
+            "attempt-count"
+        ).textContent =
+            attemptCount;
+
+    }
+
+
+    document.getElementById(
+        "check-answer"
+    ).addEventListener(
+        "click",
+        checkAnswer
+    );
+
+
+    mathAnswer.addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+
+        }
+    );
+
+    document.getElementById(
+        "add-game-button"
+    ).addEventListener(
+        "click",
+        () => {
+
+            mathAnswer.blur();
+
+            modalOverlay.classList.add("open");
+
+            document.getElementById(
+                "game-name"
+            ).focus();
+
+        }
+    );
+
+
+    function closeModal() {
+
+        modalOverlay.classList.remove(
+            "open"
+        );
+
+        document.getElementById(
+            "game-name"
+        ).value = "";
+
+        document.getElementById(
+            "game-url"
+        ).value = "";
+
+    }
+
+
+    document.getElementById(
+        "cancel-game"
+    ).addEventListener(
+        "click",
+        closeModal
+    );
+
+
+    modalOverlay.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                modalOverlay
+            ) {
+                closeModal();
+            }
+
+        }
+    );
+
+    function openStore() {
+
+        renderStore();
+
+        storeOverlay.classList.add("open");
+
+    }
+
+
+    function closeStore() {
+
+        storeOverlay.classList.remove("open");
+
+    }
+
+
+    document.getElementById(
+        "open-store-button"
+    ).addEventListener(
+        "click",
+        openStore
+    );
+
+
+    document.getElementById(
+        "close-store"
+    ).addEventListener(
+        "click",
+        closeStore
+    );
+
+
+    storeOverlay.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                storeOverlay
+            ) {
+                closeStore();
+            }
+
+        }
+    );
+
+
+    function renderStore() {
+
+        storeGrid.innerHTML = "";
+
+        storeItems.forEach(item => {
+
+            const owned =
+                ownedItems.includes(item.id);
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "store-item" +
+                (owned ? " owned" : "");
+
+            card.innerHTML = `
+                <div class="store-item-emoji">${item.emoji}</div>
+                <div class="store-item-name">${item.name}</div>
+                ${
+                    owned
+                        ? `<div class="store-item-owned-label">Owned</div>`
+                        : `
+                            <div class="store-item-price">${item.price} 🪙</div>
+                            <button class="store-item-buy">Buy</button>
+                        `
+                }
+            `;
+
+            if (!owned) {
+
+                const buyButton =
+                    card.querySelector(
+                        ".store-item-buy"
+                    );
+
+                buyButton.disabled =
+                    coins < item.price;
+
+                buyButton.addEventListener(
+                    "click",
+                    () => buyItem(item)
+                );
+
+            }
+
+            storeGrid.appendChild(card);
+
+        });
+
+    }
+
+
+    function buyItem(item) {
+
+        if (
+            ownedItems.includes(item.id) ||
+            coins < item.price
+        ) {
+            return;
+        }
+
+        coins -= item.price;
+
+        ownedItems.push(item.id);
+
+        localStorage.setItem(
+            "mathlab-coins",
+            String(coins)
+        );
+
+        localStorage.setItem(
+            "mathlab-owned-items",
+            JSON.stringify(ownedItems)
+        );
+
+        coinCountEl.textContent =
+            coins;
+
+        syncMemberProgress({
+            coins,
+            owned_items: ownedItems
+        });
+
+        renderStore();
+
+    }
+
+
+    document.getElementById(
+        "save-game"
+    ).addEventListener(
+        "click",
+        () => {
+
+            const name =
+                document.getElementById(
+                    "game-name"
+                ).value.trim();
+
+
+            const url =
+                document.getElementById(
+                    "game-url"
+                ).value.trim();
+
+
+            if (!name || !url) {
+
+                alert(
+                    "Please enter a name and URL."
+                );
+
+                return;
+
+            }
+
+
+            let parsedURL;
+
+
+            try {
+
+                parsedURL =
+                    new URL(url);
+
+            } catch {
+
+                alert(
+                    "That isn't a valid URL."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                parsedURL.protocol !==
+                    "http:" &&
+                parsedURL.protocol !==
+                    "https:"
+            ) {
+
+                alert(
+                    "Only HTTP and HTTPS URLs are supported."
+                );
+
+                return;
+
+            }
+
+
+            games.push({
+
+                id: Date.now(),
+
+                name,
+
+                url,
+
+                favorite: false
+
+            });
+
+
+            saveGames();
+
+            renderGames();
+
+            closeModal();
+
+        }
+    );
+
+    function saveGames() {
+
+        localStorage.setItem(
+            "mathlab-games",
+            JSON.stringify(games)
+        );
+
+    }
+
+function renderGames() {
+
+    gameGrid.innerHTML = "";
+
+    const defaultHeading =
+        document.createElement("div");
+
+    defaultHeading.style.gridColumn =
+        "1 / -1";
+
+    defaultHeading.innerHTML = `
+        <h2 style="
+            margin: 0 0 2px;
+            font-size: 18px;
+        ">
+            Recommended
+        </h2>
+
+        <p style="
+            margin: 0 0 8px;
+            color: var(--muted);
+            font-size: 13px;
+        ">
+            Provided by MathLab.
+        </p>
+    `;
+
+    gameGrid.appendChild(
+        defaultHeading
+    );
+
+
+    defaultGames.forEach(
+        game => {
+
+            const card =
+                createGameCard(
+                    game,
+                    true
+                );
+
+            gameGrid.appendChild(card);
+
+        }
+    );
+
+    const userHeading =
+        document.createElement("div");
+
+    userHeading.style.gridColumn =
+        "1 / -1";
+
+    userHeading.style.marginTop =
+        "20px";
+
+    userHeading.innerHTML = `
+        <h2 style="
+            margin: 0 0 2px;
+            font-size: 18px;
+        ">
+            Your Games
+        </h2>
+
+        <p style="
+            margin: 0 0 8px;
+            color: var(--muted);
+            font-size: 13px;
+        ">
+            Games you've added to your library.
+        </p>
+    `;
+
+    gameGrid.appendChild(
+        userHeading
+    );
+
+    if (games.length === 0) {
+
+        const empty =
+            document.createElement("div");
+
+        empty.className =
+            "empty-state";
+
+        empty.style.gridColumn =
+            "1 / -1";
+
+        empty.innerHTML = `
+
+            <h3>
+                No games added yet
+            </h3>
+
+            <p>
+                Add a game to build your library.
+            </p>
+
+        `;
+
+        gameGrid.appendChild(empty);
+
+    }
+    const sorted =
+        [...games].sort(
+            (a, b) =>
+                Number(b.favorite) -
+                Number(a.favorite)
+        );
+
+
+    sorted.forEach(game => {
+
+        const card =
+            createGameCard(
+                game,
+                false
+            );
+
+        gameGrid.appendChild(card);
+
+    });
+
+}
+
+/* ==========================================
+   CREATE GAME CARD
+========================================== */
+
+function createGameCard(
+    game,
+    isDefault
+) {
+
+    const card =
+        document.createElement("div");
+
+
+    card.className =
+        "game-card";
+
+
+    card.innerHTML = `
+
+        <h3></h3>
+
+        <div class="game-url"></div>
+
+        <div class="game-actions">
+
+            <button class="small-button play">
+                Play
+            </button>
+
+            ${
+                isDefault
+                    ? ""
+                    : `
+                        <button class="
+                            small-button
+                            favorite
+                        ">
+                            ☆
+                        </button>
+
+                        <button class="
+                            small-button
+                            delete
+                        ">
+                            Delete
+                        </button>
+                    `
+            }
+
+        </div>
+
+    `;
+
+
+    /*
+     * Game information
+     */
+
+    card.querySelector("h3")
+        .textContent =
+        game.name;
+
+
+    card.querySelector(".game-url")
+        .textContent =
+        game.url;
+
+
+    /*
+     * Play
+     */
+
+    card.querySelector(".play")
+        .addEventListener(
+            "click",
+            () => openGame(game)
+        );
+
+
+    /*
+     * User-game controls
+     */
+
+    if (!isDefault) {
+
+        const favoriteButton =
+            card.querySelector(
+                ".favorite"
+            );
+
+
+        if (game.favorite) {
+
+            favoriteButton.textContent =
+                "★";
+
+            favoriteButton.classList.add(
+                "active"
+            );
+
+        }
+
+
+        favoriteButton
+            .addEventListener(
+                "click",
+                () => {
+
+                    game.favorite =
+                        !game.favorite;
+
+                    saveGames();
+
+                    renderGames();
+
+                }
+            );
+
+
+        card.querySelector(".delete")
+            .addEventListener(
+                "click",
+                () => {
+
+                    games =
+                        games.filter(
+                            item =>
+                                item.id !==
+                                game.id
+                        );
+
+
+                    saveGames();
+
+                    renderGames();
+
+                }
+            );
+
+    }
+
+
+    return card;
+
+}
+
+function openGame(game) {
+
+    mathAnswer.blur();
+    mathAnswer.disabled = true;
+    mathAnswer.value = "";
+
+    viewerTitle.textContent = game.name;
+
+    viewer.classList.add("open");
+
+    gameFrame.src = game.url;
+
+    setTimeout(() => {
+        gameFrame.focus();
+    }, 100);
+
+}
+
+
+    function closeViewer() {
+
+    viewer.classList.remove("open");
+
+    gameFrame.src = "";
+
+    switchMode("math");
+
+}
+
+    document.getElementById(
+        "close-viewer"
+    ).addEventListener(
+        "click",
+        closeViewer
+    );
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            const tag =
+                document.activeElement.tagName;
+
+            if (
+                tag === "INPUT" ||
+                tag === "TEXTAREA" ||
+                tag === "SELECT"
+            ) {
+
+                return;
+
+            }
+
+            if (
+                viewer.classList.contains(
+                    "open"
+                )
+            ) {
+
+                if (event.key === "Escape") {
+
+                    closeViewer();
+
+                    switchMode("math");
+
+                }
+
+                return;
+
+            }
+
+
+            const key =
+                event.key.toLowerCase();
+
+
+            if (key === "m") {
+
+                switchMode("math");
+
+            }
+
+
+            if (key === "g") {
+
+                switchMode("games");
+
+            }
+
+        }
+    );
+
+
+    const navTeacherButton = document.getElementById("nav-teacher-button");
+    const classHud = document.getElementById("class-hud");
+    const classHudName = document.getElementById("class-hud-name");
+    const leaveClassButton = document.getElementById("leave-class-button");
+    const pausedBanner = document.getElementById("class-paused-banner");
+    navTeacherButton.addEventListener("click", () => switchMode("teacher"));
+
+    leaveClassButton.addEventListener("click", async () => {
+
+        const confirmed = confirm(
+            "Leave this class? You'll need the class code to rejoin."
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        await leaveClass();
+
+        applyClassStateToUI();
+
+        switchMode("landing");
+
+    });
+
+    function applyClassStateToUI() {
+
+        if (!classState.inClass) {
+
+            classHud.style.display = "none";
+            navTeacherButton.style.display = "none";
+            pausedBanner.style.display = "none";
+
+            return;
+
+        }
+
+        classHud.style.display = "flex";
+        classHudName.textContent = classState.className;
+
+        navTeacherButton.style.display =
+            classState.role === "teacher" ? "inline-block" : "none";
+
+        if (classState.role === "student") {
+
+            pausedBanner.style.display =
+                classState.active ? "none" : "block";
+
+        } else {
+
+            pausedBanner.style.display = "none";
+
+        }
+
+    }
+
+    const landingTabJoin = document.getElementById("landing-tab-join");
+    const landingTabCreate = document.getElementById("landing-tab-create");
+    const landingFormJoin = document.getElementById("landing-form-join");
+    const landingFormCreate = document.getElementById("landing-form-create");
+
+    landingTabJoin.addEventListener("click", () => {
+
+        landingTabJoin.classList.add("active");
+        landingTabCreate.classList.remove("active");
+
+        landingFormJoin.classList.add("active");
+        landingFormCreate.classList.remove("active");
+
+    });
+
+    landingTabCreate.addEventListener("click", () => {
+
+        landingTabCreate.classList.add("active");
+        landingTabJoin.classList.remove("active");
+
+        landingFormCreate.classList.add("active");
+        landingFormJoin.classList.remove("active");
+
+    });
+
+    document.getElementById("join-submit").addEventListener("click", async () => {
+
+        const nameInput = document.getElementById("join-name");
+        const codeInput = document.getElementById("join-code");
+        const errorEl = document.getElementById("join-error");
+
+        const name = nameInput.value.trim();
+        const code = codeInput.value.trim();
+
+        errorEl.textContent = "";
+
+        if (!name) {
+            errorEl.textContent = "Enter your name.";
+            return;
+        }
+
+        if (!/^\d{6}$/.test(code)) {
+            errorEl.textContent = "Enter a valid 6-digit code.";
+            return;
+        }
+
+        const result = await joinClass(name, code);
+
+        if (result.error) {
+            errorEl.textContent = result.error;
+            return;
+        }
+
+        onClassEntered();
+
+    });
+
+    document.getElementById("create-submit").addEventListener("click", async () => {
+
+        const nameInput = document.getElementById("create-teacher-name");
+        const classNameInput = document.getElementById("create-class-name");
+        const errorEl = document.getElementById("create-error");
+
+        const teacherName = nameInput.value.trim();
+        const className = classNameInput.value.trim();
+
+        errorEl.textContent = "";
+
+        if (!teacherName || !className) {
+            errorEl.textContent = "Enter your name and a class name.";
+            return;
+        }
+
+        const result = await createClass(teacherName, className);
+
+        if (result.error) {
+            errorEl.textContent = result.error;
+            return;
+        }
+
+        onClassEntered();
+
+    });
+
+    function onClassEntered() {
+
+        applyClassStateToUI();
+
+        coins = 0;
+        ownedItems = [];
+        streak = 0;
+        correctCount = 0;
+        attemptCount = 0;
+
+        coinCountEl.textContent = coins;
+        updateStreakDisplay();
+        updateStats();
+
+        if (classState.role === "teacher") {
+
+            switchMode("teacher");
+
+        } else {
+
+            switchMode("math");
+            generateQuestion();
+
+        }
+
+    }
+
+    async function refreshClassStateFromServer() {
+
+        if (!classState.inClass) {
+            return;
+        }
+
+        const { data: freshClass } = await supabase
+            .from("classes")
+            .select("*")
+            .eq("id", classState.classId)
+            .maybeSingle();
+
+        if (freshClass) {
+
+            const wasActive = classState.active;
+
+            classState.active = freshClass.active;
+            classState.allowedTypes = freshClass.allowed_question_types;
+            classState.className = freshClass.name;
+
+            if (classState.role === "student") {
+
+                applyClassStateToUI();
+
+                if (!wasActive && freshClass.active && mathMode.classList.contains("active")) {
+                    generateQuestion();
+                }
+
+            }
+
+        }
+
+    }
+
+    if (classState.role === "student") {
+
+        setInterval(refreshClassStateFromServer, 8000);
+
+    }
+
+    function renderTeacherDashboard() {
+
+        document.getElementById("teacher-class-name").textContent =
+            classState.className;
+
+        document.getElementById("teacher-code-badge").textContent =
+            classState.classCode;
+
+        const pauseButton = document.getElementById("pause-toggle-button");
+
+        pauseButton.textContent =
+            classState.active ? "Pause class" : "Resume class";
+
+        pauseButton.classList.toggle("is-active", !classState.active);
+
+        pauseButton.onclick = async () => {
+
+            const { error } = await updateClassSettings({
+                active: !classState.active
+            });
+
+            if (!error) {
+                renderTeacherDashboard();
+            }
+
+        };
+
+        const typeList = document.getElementById("type-checkbox-list");
+
+        typeList.innerHTML = "";
+
+        ALL_QUESTION_TYPES.forEach(type => {
+
+            const row = document.createElement("label");
+
+            row.className = "type-checkbox-row";
+
+            const checkbox = document.createElement("input");
+
+            checkbox.type = "checkbox";
+            checkbox.checked = classState.allowedTypes.includes(type);
+
+            checkbox.addEventListener("change", async () => {
+
+                let updated = classState.allowedTypes.slice();
+
+                if (checkbox.checked) {
+
+                    if (!updated.includes(type)) {
+                        updated.push(type);
+                    }
+
+                } else {
+
+                    updated = updated.filter(t => t !== type);
+
+                    if (updated.length === 0) {
+
+                        checkbox.checked = true;
+
+                        alert("At least one question type must stay enabled.");
+
+                        return;
+
+                    }
+
+                }
+
+                await updateClassSettings({
+                    allowed_question_types: updated
+                });
+
+            });
+
+            const span = document.createElement("span");
+
+            span.textContent = formatQuestionType(type);
+
+            row.appendChild(checkbox);
+            row.appendChild(span);
+
+            typeList.appendChild(row);
+
+        });
+
+        renderRoster();
+
+    }
+
+    async function renderRoster() {
+
+        const rosterContainer = document.getElementById("roster-container");
+        const roster = await fetchRoster();
+
+        const students = roster.filter(m => m.role === "student");
+
+        if (students.length === 0) {
+
+            rosterContainer.innerHTML =
+                `<p class="roster-empty">No students have joined yet. Share the code above.</p>`;
+
+            return;
+
+        }
+
+        const table = document.createElement("table");
+
+        table.className = "roster-table";
+
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Coins</th>
+                    <th>Correct</th>
+                    <th>Attempted</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `;
+
+        const tbody = table.querySelector("tbody");
+
+        students.forEach(student => {
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${student.name}</td>
+                <td>${student.coins}</td>
+                <td>${student.correct_count}</td>
+                <td>${student.attempt_count}</td>
+                <td></td>
+            `;
+
+            const actionsCell = row.querySelector("td:last-child");
+            const actions = document.createElement("div");
+
+            actions.className = "roster-actions";
+
+            const resetButton = document.createElement("button");
+
+            resetButton.className = "roster-action-button";
+            resetButton.textContent = "Reset coins";
+
+            resetButton.addEventListener("click", async () => {
+
+                const confirmed = confirm(
+                    `Reset ${student.name}'s coins and store items?`
+                );
+
+                if (!confirmed) {
+                    return;
+                }
+
+                await resetStudentCoins(student.id);
+
+                renderRoster();
+
+            });
+
+            const kickButton = document.createElement("button");
+
+            kickButton.className = "roster-action-button danger";
+            kickButton.textContent = "Kick";
+
+            kickButton.addEventListener("click", async () => {
+
+                const confirmed = confirm(
+                    `Remove ${student.name} from the class?`
+                );
+
+                if (!confirmed) {
+                    return;
+                }
+
+                await kickStudent(student.id);
+
+                renderRoster();
+
+            });
+
+            actions.appendChild(resetButton);
+            actions.appendChild(kickButton);
+
+            actionsCell.appendChild(actions);
+
+            tbody.appendChild(row);
+
+        });
+
+        rosterContainer.innerHTML = "";
+        rosterContainer.appendChild(table);
+
+    }
+
+    async function bootstrap() {
+
+        renderGames();
+
+        const existing = await loadExistingMembership();
+
+        if (existing) {
+
+            const { data: memberRow } = await supabase
+                .from("members")
+                .select("*")
+                .eq("id", classState.memberId)
+                .maybeSingle();
+
+            if (memberRow) {
+
+                coins = memberRow.coins;
+                ownedItems = memberRow.owned_items || [];
+                streak = memberRow.streak;
+                correctCount = memberRow.correct_count;
+                attemptCount = memberRow.attempt_count;
+
+            }
+
+            coinCountEl.textContent = coins;
+            updateStreakDisplay();
+            updateStats();
+
+            applyClassStateToUI();
+
+            if (classState.role === "teacher") {
+
+                switchMode("teacher");
+
+            } else {
+
+                switchMode("math");
+                generateQuestion();
+
+                setInterval(refreshClassStateFromServer, 8000);
+
+            }
+
+        } else {
+
+            switchMode("landing");
+
+        }
+
+    }
+
+    bootstrap();
+
+</script>
+
+</body>
+</html>
